@@ -1,0 +1,14 @@
+services:
+  client:
+    container_name: client
+    image: client
+    restart: always
+    build:
+      context: ./
+      dockerfile: client.dockerfile
+    ports:
+      - 3000:3000
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8800
+    networks:
+      - shared-network

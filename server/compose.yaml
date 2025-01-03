@@ -1,0 +1,13 @@
+services:
+  server:
+    container_name: server
+    image: server
+    build:
+      context: ./
+      dockerfile: server.dockerfile
+    ports:
+      - 8800:8800
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/mydb?schema=public
+    networks:
+      - shared-network
