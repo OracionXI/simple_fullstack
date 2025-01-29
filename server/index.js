@@ -16,6 +16,11 @@ app.use((req, res, next) => {
 // routes
 app.use("/server/users", userRoute);
 
+//health check endpoint
+app.get('/health', (req, res) => {
+    res.status(200).send('Backend Healthy');
+});
+
 //start server
 const PORT = process.env.PORT || 8800;
 app.listen(PORT, () => {
