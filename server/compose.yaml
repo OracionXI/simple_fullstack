@@ -1,0 +1,22 @@
+services:
+  server:
+    container_name: server
+    image: oracionxi/express_prisma_server:v2
+    ports:
+      - 8800:8800
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/mydb?schema=public
+    depends_on:
+      - db
+    networks:
+      - shared-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8800/health"]
+      interval: 30s
+      retries: 3
+      timeout: 10s
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: "0.5"

@@ -1,0 +1,18 @@
+services:
+  db:
+    container_name: postgresDB
+    image: postgres:12
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: mydb
+    ports:
+      - 5432:5432
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - shared-network
+
+volumes:
+  pgdata: {}

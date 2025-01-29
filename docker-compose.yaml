@@ -1,0 +1,9 @@
+include:
+  - ./client/compose.yaml
+  - ./server/compose.yaml
+  - ./db/compose.yaml
+
+networks:
+  shared-network:
+    name: shared-network
+    external: true
