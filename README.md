@@ -19,17 +19,21 @@ docker push oracionxi/nextjs_client:v1
 
 ### 2️⃣ Analyze the Number of Layers :
 
-To inspect the number of layers, and the overview:
-
-- Total Layers: 20
-- Base Image: node:18-alpine
-- Estimated total size : 190MB
+To inspect the number of layers,
 
 ##
 
 ```sh
 docker history oracionxi/nextjs_client:v1
 ```
+
+<br>
+
+General Overview:
+
+- Total Layers: 20
+- Base Image: node:18-alpine
+- Estimated total size : 190MB
 
 <br>
 And from the history, the key layers and observations:
@@ -88,17 +92,21 @@ docker push oracionxi/express_prisma_server:v1
 
 ### 2️⃣ Analyze the Number of Layers :
 
-To inspect the number of layers, and the overview:
-
-- Total Layers: 12
-- Base Image: node:alpine
-- Estimated total size : 148MB
+To inspect the number of layers,
 
 ##
 
 ```sh
 docker history oracionxi/express_prisma_server:v1
 ```
+
+<br>
+
+General Overview:
+
+- Total Layers: 12
+- Base Image: node:alpine
+- Estimated total size : 148MB
 
 <br>
 And from the history, the key layers and observations:

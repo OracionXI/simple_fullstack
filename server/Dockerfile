@@ -18,5 +18,3 @@ COPY --from=deps /app .
 EXPOSE 8800
 
 CMD ["node", "index.js"]
-
-
