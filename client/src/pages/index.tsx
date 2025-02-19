@@ -1,6 +1,6 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import CardComponent from "../components/cardComponent";
+import CardComponent from "../components/CardComponent";
 
 interface User {
   id: number;
@@ -9,7 +9,7 @@ interface User {
 }
 
 export default function Home() {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8800";
   const [users, setUsers] = useState<User[]>([]);
   const [newUser, setNewUser] = useState({ name: "", email: "" });
   const [updateUser, setUpdateUser] = useState({ id: "", name: "", email: "" });
@@ -18,7 +18,7 @@ export default function Home() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`${apiUrl}/users`);
+        const response = await axios.get(`${apiUrl}/server/users`);
         setUsers(response.data.reverse());
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -32,7 +32,7 @@ export default function Home() {
   const createUser = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      const response = await axios.post(`${apiUrl}/users`, newUser);
+      const response = await axios.post(`${apiUrl}/server/users/save`, newUser);
       setUsers([response.data, ...users]);
       setNewUser({ name: "", email: "" });
     } catch (error) {
@@ -44,7 +44,7 @@ export default function Home() {
   const handleUpdateUser = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      await axios.put(`${apiUrl}/users/${updateUser.id}`, {
+      await axios.put(`${apiUrl}/server/users/${updateUser.id}`, {
         name: updateUser.name,
         email: updateUser.email,
       });
@@ -65,7 +65,7 @@ export default function Home() {
   //delete user
   const deleteUser = async (userId: number) => {
     try {
-      await axios.delete(`${apiUrl}/users/${userId}`);
+      await axios.delete(`${apiUrl}/server/users/${userId}`);
       setUsers(users.filter((user) => user.id !== userId));
     } catch (error) {
       console.error("Error deleting user:", error);
