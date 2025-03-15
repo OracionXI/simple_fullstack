@@ -28,7 +28,7 @@ jobs:
       - name: Run Unit Tests
         run: |
           cd server/test
-          npm test -- --ci --coverage
+          npm test
         env:
           CI: true
 
