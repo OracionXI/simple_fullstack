@@ -16,13 +16,18 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v1
         with:
-          node-version: 12
+          node-version: 18
 
       - name: Install Node.js dependencies
         run: |
           cd server
           npm ci
           npx prisma generate
+
+      - name: Check for outdated dependencies
+        run: |
+          cd server
+          npm outdated || true
 
       - name: Lint Check
         uses: wearerequired/lint-action@v2
@@ -34,7 +39,7 @@ jobs:
         uses: SonarSource/sonarqube-scan-action@v5
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      
+
   create-pull-request-and-merge:
     needs: code-testing
     runs-on: ubuntu-latest
