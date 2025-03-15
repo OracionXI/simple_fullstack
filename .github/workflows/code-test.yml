@@ -6,14 +6,56 @@ on:
       - feature/*
 
 jobs:
-  test-python:
+  code-testing:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
+      - name: Set up Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12
+
+      - name: Install Node.js dependencies
+        run: npm ci
+
+      - name: Lint Check
+        uses: wearerequired/lint-action@v2
+        with:
+          prettier: true
+        continue-on-error: true
+
       - name: SonarCloud Code Quality Tests
         uses: SonarSource/sonarqube-scan-action@v5
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      
+  create-pull-request-and-merge:
+    needs: code-testing
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create and Merge Pull Request
+        env:
+          GH_TOKEN: ${{ secrets.GIT_TOKEN }}
+        run: |
+          BRANCH_NAME=${{ github.ref_name }}
+          echo "Branch name: $BRANCH_NAME"
+
+          if gh pr list --base development --head "$BRANCH_NAME" --state open | grep -q "$BRANCH_NAME"; then
+            echo "PR already exists"
+          else
+            gh pr create \
+              --base development \
+              --head "$BRANCH_NAME" \
+              --title "Auto PR: Merge $BRANCH_NAME into development" \
+              --body "This pull request was automatically created by GitHub Actions."
+            echo "PR created successfully."
+          fi
+
+          gh pr merge --merge --auto --delete-branch "$BRANCH_NAME"
+          echo "PR merged successfully."
