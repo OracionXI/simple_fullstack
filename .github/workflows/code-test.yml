@@ -19,7 +19,9 @@ jobs:
           node-version: 12
 
       - name: Install Node.js dependencies
-        run: npm ci
+        run: |
+          cd server
+          npm ci
 
       - name: Lint Check
         uses: wearerequired/lint-action@v2
