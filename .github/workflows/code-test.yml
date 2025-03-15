@@ -21,7 +21,7 @@ jobs:
       - name: Install Node.js dependencies
         run: |
           cd server
-          npm ci
+          npm i
 
       - name: Lint Check
         uses: wearerequired/lint-action@v2
