@@ -22,13 +22,14 @@ jobs:
         run: |
           cd server
           npm ci
+          npm install --save-dev jest
           npx prisma generate
           npm install --global prettier
 
       - name: Run Unit Tests
         run: |
           cd server
-          npm run test
+          npm test server/test/controller.test.js
         env:
           CI: true
 

@@ -1,5 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-import { createUser, deleteUser, getUser, getUsers, testUser, updateUser } from "../controllers/user.controller";
+import { createUser, deleteUser, getUser, getUsers, testUser, updateUser } from "../controllers/user.controller.js";
 
 const prisma = new PrismaClient();
 
@@ -16,7 +16,7 @@ jest.mock("@prisma/client", () => {
   return { PrismaClient: jest.fn(() => mPrisma) };
 });
 
-describe("User Controller", () => {
+describe("UserController", () => {
   let req, res;
 
   beforeEach(() => {
