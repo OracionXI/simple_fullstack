@@ -47,6 +47,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Ensure development branch exists
+        run: |
+          git fetch --all
+
       - name: Create and Merge Pull Request
         env:
           GH_TOKEN: ${{ secrets.GIT_TOKEN }}
