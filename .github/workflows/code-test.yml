@@ -50,7 +50,7 @@ jobs:
       - name: Ensure development branch exists
         run: |
           git fetch --all
-          git checkout development || git checkout -b development origin/development
+          git checkout development || git checkout main && git checkout -b development
 
       - name: Create and Merge Pull Request
         env:
