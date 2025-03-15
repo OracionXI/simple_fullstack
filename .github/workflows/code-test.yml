@@ -18,16 +18,19 @@ jobs:
         with:
           node-version: 18
 
-      - name: Install Node.js dependencies
+      - name: Install dependencies
         run: |
           cd server
           npm ci
           npx prisma generate
+          npm install --global prettier
 
-      - name: Check for outdated dependencies
+      - name: Run Unit Tests
         run: |
           cd server
-          npm outdated || true
+          npm test -- --ci --coverage
+        env:
+          CI: true
 
       - name: Lint Check
         uses: wearerequired/lint-action@v2
