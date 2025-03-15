@@ -22,6 +22,7 @@ jobs:
         run: |
           cd server
           npm ci
+          npx prisma generate
 
       - name: Lint Check
         uses: wearerequired/lint-action@v2
