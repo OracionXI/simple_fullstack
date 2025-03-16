@@ -1,99 +1,70 @@
 import { PrismaClient } from "@prisma/client";
-import { createUser, deleteUser, getUser, getUsers, testUser, updateUser } from "../controllers/user.controller.js";
+import request from "supertest";
+import app from "../index.js";
 
 const prisma = new PrismaClient();
 
-jest.mock("@prisma/client", () => {
-  const mPrisma = {
-    user: {
-      findMany: jest.fn(),
-      findUnique: jest.fn(),
-      create: jest.fn(),
-      update: jest.fn(),
-      delete: jest.fn(),
-    },
-  };
-  return { PrismaClient: jest.fn(() => mPrisma) };
+beforeAll(async () => {
+  await prisma.$connect();
 });
 
-describe("UserController", () => {
-  let req, res;
+afterAll(async () => {
+  await prisma.$disconnect();
+});
 
-  beforeEach(() => {
-    req = { params: {}, body: {} };
-    res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+describe("User API Tests", () => {
+  let testUserId;
+
+  test("Test API is working", async () => {
+    const res = await request(app).get("/api/test");
+    expect(res.statusCode).toBe(200);
+    expect(res.body).toHaveProperty("message", "API is working!");
   });
 
-  test("testUser should return API is working", async () => {
-    await testUser(req, res);
-    expect(res.status).toHaveBeenCalledWith(200);
-    expect(res.json).toHaveBeenCalledWith({ message: "API is working!" });
+  test("Create a user", async () => {
+    const res = await request(app)
+      .post("/api/users")
+      .send({ name: "Test User", email: "test@example.com" });
+
+    expect(res.statusCode).toBe(201);
+    expect(res.body).toHaveProperty("id");
+    expect(res.body.name).toBe("Test User");
+    expect(res.body.email).toBe("test@example.com");
+
+    testUserId = res.body.id;
   });
 
-  test("getUsers should return users", async () => {
-    const mockUsers = [{ id: 1, name: "John Doe", email: "john@example.com" }];
-    prisma.user.findMany.mockResolvedValue(mockUsers);
-
-    await getUsers(req, res);
-    expect(res.status).toHaveBeenCalledWith(200);
-    expect(res.json).toHaveBeenCalledWith(mockUsers);
+  test("Get all users", async () => {
+    const res = await request(app).get("/api/users");
+    expect(res.statusCode).toBe(200);
+    expect(Array.isArray(res.body)).toBe(true);
   });
 
-  test("getUser should return a user if found", async () => {
-    req.params.id = "1";
-    const mockUser = { id: 1, name: "John Doe", email: "john@example.com" };
-    prisma.user.findUnique.mockResolvedValue(mockUser);
-
-    await getUser(req, res);
-    expect(res.status).toHaveBeenCalledWith(200);
-    expect(res.json).toHaveBeenCalledWith(mockUser);
+  test("Get a single user", async () => {
+    const res = await request(app).get(`/api/users/${testUserId}`);
+    expect(res.statusCode).toBe(200);
+    expect(res.body).toHaveProperty("name", "Test User");
   });
 
-  test("getUser should return 404 if user not found", async () => {
-    req.params.id = "1";
-    prisma.user.findUnique.mockResolvedValue(null);
+  test("Update a user", async () => {
+    const res = await request(app)
+      .put(`/api/users/${testUserId}`)
+      .send({ name: "Updated User", email: "updated@example.com" });
 
-    await getUser(req, res);
-    expect(res.status).toHaveBeenCalledWith(404);
-    expect(res.json).toHaveBeenCalledWith({ message: "User not found!" });
+    expect(res.statusCode).toBe(200);
+    expect(res.body).toHaveProperty("name", "Updated User");
+    expect(res.body.email).toBe("updated@example.com");
   });
 
-  test("createUser should create a user", async () => {
-    req.body = { name: "Jane Doe", email: "jane@example.com" };
-    const mockUser = { id: 2, ...req.body };
-    prisma.user.create.mockResolvedValue(mockUser);
-
-    await createUser(req, res);
-    expect(res.status).toHaveBeenCalledWith(201);
-    expect(res.json).toHaveBeenCalledWith(mockUser);
+  test("Delete a user", async () => {
+    const res = await request(app).delete(`/api/users/${testUserId}`);
+    expect(res.statusCode).toBe(200);
+    expect(res.body).toHaveProperty("message", "User deleted successfully!");
   });
 
-  test("updateUser should update a user", async () => {
-    req.params.id = "1";
-    req.body = { name: "John Updated", email: "john_updated@example.com" };
-    const mockUser = { id: 1, ...req.body };
-    prisma.user.update.mockResolvedValue(mockUser);
-
-    await updateUser(req, res);
-    expect(res.status).toHaveBeenCalledWith(200);
-    expect(res.json).toHaveBeenCalledWith(mockUser);
-  });
-
-  test("deleteUser should delete a user", async () => {
-    req.params.id = "1";
-    prisma.user.delete.mockResolvedValue({ id: 1 });
-
-    await deleteUser(req, res);
-    expect(res.status).toHaveBeenCalledWith(200);
-    expect(res.json).toHaveBeenCalledWith({ message: "User deleted successfully!" });
-  });
-
-  test("deleteUser should return 404 if user not found", async () => {
-    req.params.id = "1";
-    prisma.user.delete.mockRejectedValue(new Error("User not found"));
-
-    await deleteUser(req, res);
-    expect(res.status).toHaveBeenCalledWith(500);
-    expect(res.json).toHaveBeenCalledWith({ message: "Failed to delete user!" });
+  test("Try to get deleted user (should fail)", async () => {
+    const res = await request(app).get(`/api/users/${testUserId}`);
+    expect(res.statusCode).toBe(404);
+    expect(res.body).toHaveProperty("message", "User not found!");
   });
 });
