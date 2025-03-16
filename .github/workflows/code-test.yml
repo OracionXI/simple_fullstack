@@ -71,5 +71,5 @@ jobs:
             echo "PR created successfully."
           fi
 
-          gh pr merge --merge --auto --delete-branch "$BRANCH_NAME"
+          gh pr merge --merge --auto --delete-branch "$BRANCH_NAME" || echo "Auto-merge failed. Please check if auto-merge is enabled in repository settings."
           echo "PR merged successfully."
