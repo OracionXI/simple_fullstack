@@ -1,7 +1,7 @@
 services:
   server:
     container_name: server
-    image: oracionxi/express_prisma_server:v2
+    image: oracionxi/express_prisma_server:latest
     ports:
       - 8800:8800
     environment:

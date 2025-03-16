@@ -1,7 +1,7 @@
 services:
   client:
     container_name: client
-    image: oracionxi/nextjs_client:v2
+    image: oracionxi/nextjs_client:latest
     restart: always
     ports:
       - 3000:3000
