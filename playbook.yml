@@ -1,0 +1,102 @@
+---
+# Nginx
+- name: Install Nginx
+  hosts: test_server
+  become: yes
+  tasks:
+    - name: Install Nginx package
+      ansible.builtin.apt:
+        name: nginx
+        state: present
+        update_cache: true
+      notify: Restart Nginx service
+
+  handlers:
+    - name: Restart Nginx service
+      ansible.builtin.systemd:
+        name: nginx
+        state: restarted
+        enabled: yes
+
+# Node Js
+- name: Install Node.js
+  hosts: test_server
+  become: yes
+  tasks:
+    - name: Install Node.js and npm
+      ansible.builtin.shell: "sudo apt install nodejs npm"
+
+# Docker
+- name: Install Docker
+  hosts: test_server
+  become: yes
+
+  tasks:
+    - name: Install dependencies
+      ansible.builtin.apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - software-properties-common
+        state: present
+        update_cache: true
+
+    - name: Add Docker official GPG key
+      ansible.builtin.apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: Get Ubuntu version codename
+      command: lsb_release -cs
+      register: ubuntu_codename
+
+    - name: Add Docker repository
+      apt_repository:
+        repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ubuntu_codename.stdout }} stable"
+        state: present
+
+    - name: Install necessary docker packages
+      ansible.builtin.apt:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - docker-ce
+        - docker-ce-cli
+        - containerd.io
+        - docker-buildx-plugin
+        - docker-compose-plugin
+
+    - name: Docker is Running
+      ansible.builtin.systemd:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Add ubuntu user to docker group
+      ansible.builtin.user:
+        name: ubuntu
+        groups: docker
+        append: yes
+
+    - name: Log in to Docker Hub
+      docker_login:
+        username: "{{ lookup('env', 'DOCKER_USERNAME') }}"
+        password: "{{ lookup('env', 'DOCKER_TOKEN') }}"
+
+# Copy compose file
+- name: Transfer compose file
+  hosts: test_server
+  become: yes
+  tasks:
+    - name: Transfer compose file
+      ansible.builtin.copy:
+        src: ./docker-compose.yaml
+        dest: /home/ubuntu/docker-compose.yml
+
+    - name: Run docker compose up
+      ansible.builtin.shell: |
+        cd /home/ubuntu
+        docker compose up -d
+      args:
+        executable: /bin/bash
