@@ -1,7 +1,5 @@
 # Simple PERN stack Deployment
 
-#### Link : <a href="https://usermanagement.error404workspace.workers.dev/" target="_blank">User Management (CRUD)</a>
-
 <br>
 
 ## 🚀 Tools for deployment and automation:
